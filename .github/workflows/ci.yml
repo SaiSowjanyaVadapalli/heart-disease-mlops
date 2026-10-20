@@ -1,0 +1,119 @@
+name: CI/CD - Heart Disease Risk API
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - name: flake8 (fails the build on lint errors)
+        run: flake8 src api tests scripts notebooks --max-line-length=110 --extend-ignore=E203,W503
+      - name: black --check (formatting)
+        run: black --check src api tests scripts notebooks
+
+  unit-tests:
+    name: Unit Tests (data processing + model code)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - name: Run offline unit tests with coverage
+        run: pytest tests/test_data_processing.py tests/test_model.py -v --cov=src --cov-report=xml --cov-report=term
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  train:
+    name: Data Acquisition, EDA & Model Training (MLflow)
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+      - run: pip install -r requirements.txt
+      - name: Download dataset from UCI
+        run: python scripts/download_data.py
+      - name: Run EDA
+        run: python notebooks/01_eda.py
+      - name: Train models + log to MLflow
+        run: python src/train.py
+      - name: Run API integration tests against the freshly trained model
+        run: pytest tests/test_api.py -v
+      - name: Upload trained model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: models/model.pkl
+      - name: Upload reports (metrics, EDA figures, MLflow run DB)
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-reports
+          path: |
+            reports/
+            mlflow.db
+
+  docker-build-test:
+    name: Docker Build & Container Smoke Test
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download trained model artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model
+          path: models
+      - name: Build Docker image
+        run: docker build -t heart-disease-api:ci .
+      - name: Run container
+        run: docker run -d --name heart-api -p 8000:8000 heart-disease-api:ci
+      - name: Wait for container to become healthy
+        run: |
+          for i in $(seq 1 15); do
+            if curl -sf http://localhost:8000/health; then
+              echo "API is up"
+              exit 0
+            fi
+            echo "Waiting for API... ($i)"
+            sleep 2
+          done
+          echo "API did not become healthy in time"
+          docker logs heart-api
+          exit 1
+      - name: Call /predict with sample input
+        run: |
+          curl -sf -X POST http://localhost:8000/predict \
+            -H "Content-Type: application/json" \
+            -d @sample_request.json | tee prediction_output.json
+          grep -q '"prediction"' prediction_output.json
+      - name: Dump container logs (always, for debugging)
+        if: always()
+        run: docker logs heart-api
+      - name: Stop container
+        if: always()
+        run: docker rm -f heart-api
