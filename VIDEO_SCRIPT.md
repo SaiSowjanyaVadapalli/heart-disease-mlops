@@ -8,7 +8,13 @@ full re-derivation of the report.
 
 Before recording: run `python src/train.py` once so `models/model.pkl`
 exists, and have a terminal + browser tabs ready (VS Code, MLflow UI,
-GitHub Actions, Docker Desktop, browser on `localhost:8000/docs`).
+GitHub Actions, browser on `localhost:8000/docs`).
+
+> **Recording from GitHub Codespaces?** Sections 5-7 (Docker,
+> Kubernetes, monitoring) work exactly the same way inside a Codespace's
+> browser-based terminal -- see `k8s/README.md` Option D. Just record
+> that browser tab instead of a local terminal; it's still a real
+> `docker`/`kubectl` session.
 
 ---
 

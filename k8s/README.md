@@ -1,13 +1,70 @@
-# Local Kubernetes Deployment (Minikube / Docker Desktop)
+# Local Kubernetes Deployment (Minikube / Docker Desktop / Codespaces)
 
-These steps run entirely on your own machine -- they need Docker and/or
-kubectl, which the sandbox used to generate this project does not have.
+These steps run entirely on your own machine (or in the cloud, see
+Option D) -- they need Docker and/or kubectl, which the sandbox used to
+generate this project does not have.
 
 > **On a corporate-managed machine?** Docker Desktop requires a paid
-> subscription at large companies and may be blocked by IT policy. Use
-> **Option C** below instead -- it uses only Windows' built-in Hyper-V
-> feature and the free, open-source Minikube/kubectl, with no Docker
-> Desktop install at all.
+> subscription at large companies and may be blocked by IT policy, and
+> enabling Hyper-V (Option C) touches a system-level Windows feature your
+> IT department may want to know about. The safest option with **zero
+> changes to your laptop** is **Option D: GitHub Codespaces** -- it runs
+> entirely in the cloud, with nothing installed locally.
+
+## Option D: GitHub Codespaces (recommended for corporate machines -- no local install)
+
+Runs Docker and a full Kubernetes cluster inside a free, browser-based
+cloud dev environment. Nothing is installed on your laptop; no admin
+rights, no reboot, no licensing concerns.
+
+1. Push this repository to GitHub (see the main README).
+2. On the repo's GitHub page: **Code** button -> **Codespaces** tab ->
+   **Create codespace on main**. Wait ~1-2 minutes for it to build --
+   `.devcontainer/devcontainer.json` automatically provisions Docker
+   (via the docker-in-docker feature) and kubectl/Minikube/Helm.
+3. In the Codespace's terminal (this is a full Linux VM in your browser):
+   ```bash
+   pip install -r requirements.txt     # usually already done by postCreateCommand
+   python scripts/download_data.py
+   python src/train.py
+   docker build -t heart-disease-api:local .
+   docker run -d -p 8000:8000 --name heart-api heart-disease-api:local
+   curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @sample_request.json
+   docker rm -f heart-api
+   ```
+4. Start a Kubernetes cluster and deploy:
+   ```bash
+   minikube start --driver=docker
+   minikube image load heart-disease-api:local
+   kubectl apply -f k8s/deployment.yaml
+   kubectl apply -f k8s/service.yaml
+   kubectl get pods
+   kubectl get svc heart-disease-api
+   ```
+5. Reach the service with a simple port-forward (works the same
+   everywhere, no tunnel/LoadBalancer quirks):
+   ```bash
+   kubectl port-forward svc/heart-disease-api 8080:80
+   ```
+   Then, in a second terminal tab:
+   ```bash
+   curl http://localhost:8080/health
+   curl -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d @sample_request.json
+   ```
+   VS Code (in the browser) will also show a notification offering to
+   open port 8080 -- click it, or use the **Ports** tab, to open
+   `/docs` directly in a new browser tab for a live demo / recording.
+6. For the monitoring stack: `docker compose up -d` and port-forward
+   9090 (Prometheus) and 3000 (Grafana) the same way, or just use the
+   **Ports** tab's forwarded links.
+7. Take your screenshots and record your video directly from this
+   browser-based VS Code session -- it's a real terminal running real
+   `docker`/`kubectl` commands, which is all the assignment requires.
+8. When done, delete the Codespace (Codespaces tab on GitHub) to stop
+   using your free quota. Free tier: 120 core-hours/month, far more than
+   this assignment needs.
+
+## Option A: Docker Desktop Kubernetes
 
 ## Option A: Docker Desktop Kubernetes
 

@@ -1,0 +1,16 @@
+{
+  "name": "heart-disease-mlops",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
+  "forwardPorts": [8000, 9090, 3000],
+  "portsAttributes": {
+    "8000": { "label": "Heart Disease API" },
+    "9090": { "label": "Prometheus" },
+    "3000": { "label": "Grafana" }
+  },
+  "remoteUser": "vscode"
+}

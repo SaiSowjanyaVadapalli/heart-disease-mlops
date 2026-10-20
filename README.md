@@ -166,19 +166,20 @@ Interactive API docs: http://localhost:8000/docs
 ## 9. Production deployment to Kubernetes (Task 7)
 
 See [`k8s/README.md`](k8s/README.md) for full step-by-step instructions
-covering three setups: Docker Desktop's built-in Kubernetes, Minikube on
-Docker, and **Minikube on Hyper-V with no Docker Desktop at all**
-(recommended for corporate-managed machines, where Docker Desktop's
-licensing terms or IT policy may block installing it) -- including the
-exact `kubectl` commands to verify pods/services and the screenshots to
-capture for the report. Manifests: `k8s/deployment.yaml` (2 replicas,
-liveness/readiness probes on `/health`, resource limits) and
-`k8s/service.yaml` (`LoadBalancer`).
+covering four setups: **GitHub Codespaces** (recommended for
+corporate-managed machines -- runs entirely in the cloud via
+`.devcontainer/devcontainer.json`, nothing installed locally, no admin
+rights or IT policy concerns), Docker Desktop's built-in Kubernetes,
+Minikube on Docker, and Minikube on Hyper-V with no Docker Desktop at
+all -- including the exact `kubectl` commands to verify pods/services
+and the screenshots to capture for the report. Manifests:
+`k8s/deployment.yaml` (2 replicas, liveness/readiness probes on
+`/health`, resource limits) and `k8s/service.yaml` (`LoadBalancer`).
 
 > This repository's generation environment has no Docker/kubectl/Hyper-V
 > available, so these steps were written and reviewed but must be
-> executed and screenshotted on a machine where one of the three setups
-> above has been set up.
+> executed and screenshotted using one of the four setups above
+> (Codespaces needs only a browser).
 
 ## 10. Monitoring & logging (Task 8)
 
