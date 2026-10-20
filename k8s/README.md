@@ -1,8 +1,13 @@
 # Local Kubernetes Deployment (Minikube / Docker Desktop)
 
-These steps run entirely on your own machine (Docker Desktop with Kubernetes
-enabled, or Minikube) -- they need Docker and kubectl, which the sandbox used
-to generate this project does not have.
+These steps run entirely on your own machine -- they need Docker and/or
+kubectl, which the sandbox used to generate this project does not have.
+
+> **On a corporate-managed machine?** Docker Desktop requires a paid
+> subscription at large companies and may be blocked by IT policy. Use
+> **Option C** below instead -- it uses only Windows' built-in Hyper-V
+> feature and the free, open-source Minikube/kubectl, with no Docker
+> Desktop install at all.
 
 ## Option A: Docker Desktop Kubernetes
 
@@ -53,6 +58,88 @@ to generate this project does not have.
    ```
    minikube service heart-disease-api --url
    ```
+
+## Option C: Minikube + Hyper-V (no Docker Desktop)
+
+Uses Windows' built-in Hyper-V feature as the VM backend and builds the
+image *inside* Minikube itself (`minikube image build`), so no Docker
+Engine or Docker Desktop is ever installed on the host.
+
+### C.1 Enable Hyper-V (one-time, requires admin + a reboot)
+
+In an **elevated** PowerShell (right-click PowerShell -> "Run as
+Administrator"):
+```powershell
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+Restart-Computer
+```
+
+### C.2 Install Minikube and kubectl
+
+After reboot, in a normal PowerShell:
+```powershell
+winget install minikube
+winget install Kubernetes.kubectl
+```
+(or `choco install minikube kubernetes-cli -y` if you prefer Chocolatey)
+
+Close and reopen your terminal so the new PATH entries are picked up, then
+confirm:
+```powershell
+minikube version
+kubectl version --client
+```
+
+### C.3 Create a Hyper-V virtual switch (one-time)
+
+Still in an **elevated** PowerShell:
+```powershell
+Get-NetAdapter                      # note the Name of your active Wi-Fi/Ethernet adapter
+New-VMSwitch -Name "minikube-switch" -NetAdapterName "<your-adapter-name>" -AllowManagementOS $true
+```
+
+### C.4 Start Minikube
+
+Minikube's Hyper-V driver needs admin rights, so keep using an
+**elevated** PowerShell for every `minikube` command below:
+```powershell
+minikube start --driver=hyperv --hyperv-virtual-switch="minikube-switch"
+```
+
+### C.5 Build the image inside Minikube (no local Docker needed)
+
+```powershell
+cd "path\to\heart-disease-mlops"
+python src\train.py                              # must run first -- produces models\model.pkl
+minikube image build -t heart-disease-api:local .
+```
+
+### C.6 Deploy and verify
+
+```powershell
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl get pods
+kubectl get svc heart-disease-api
+```
+
+Minikube doesn't provide a real cloud load balancer, so either:
+```powershell
+minikube tunnel        # separate elevated terminal, keep it running
+curl http://localhost/health
+```
+or get a direct URL without tunneling:
+```powershell
+minikube service heart-disease-api --url
+```
+
+### C.7 Cleanup
+
+```powershell
+kubectl delete -f k8s/service.yaml
+kubectl delete -f k8s/deployment.yaml
+minikube stop
+```
 
 ## Verifying the deployment (for your report screenshots)
 

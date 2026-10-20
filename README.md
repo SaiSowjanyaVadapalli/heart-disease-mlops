@@ -166,16 +166,19 @@ Interactive API docs: http://localhost:8000/docs
 ## 9. Production deployment to Kubernetes (Task 7)
 
 See [`k8s/README.md`](k8s/README.md) for full step-by-step instructions
-for both Docker Desktop's built-in Kubernetes and Minikube, including the
+covering three setups: Docker Desktop's built-in Kubernetes, Minikube on
+Docker, and **Minikube on Hyper-V with no Docker Desktop at all**
+(recommended for corporate-managed machines, where Docker Desktop's
+licensing terms or IT policy may block installing it) -- including the
 exact `kubectl` commands to verify pods/services and the screenshots to
 capture for the report. Manifests: `k8s/deployment.yaml` (2 replicas,
 liveness/readiness probes on `/health`, resource limits) and
 `k8s/service.yaml` (`LoadBalancer`).
 
-> This repository's generation environment has no Docker/kubectl
+> This repository's generation environment has no Docker/kubectl/Hyper-V
 > available, so these steps were written and reviewed but must be
-> executed and screenshotted on a machine with Docker Desktop
-> (Kubernetes enabled) or Minikube installed.
+> executed and screenshotted on a machine where one of the three setups
+> above has been set up.
 
 ## 10. Monitoring & logging (Task 8)
 
@@ -218,5 +221,11 @@ curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -
 
 The full written report (setup, EDA/modelling choices, experiment
 tracking summary, architecture diagram, CI/CD and deployment workflow
-screenshots) is in [`REPORT.md`](REPORT.md). Screenshots go in
-`screenshots/` (see that folder's checklist).
+screenshots) is in [`REPORT.md`](REPORT.md) (also generated as
+`REPORT.docx`). Screenshots go in `screenshots/` (see that folder's
+checklist).
+
+## 13. Demo video
+
+A narration script for the short pipeline walkthrough video is in
+[`VIDEO_SCRIPT.md`](VIDEO_SCRIPT.md).
