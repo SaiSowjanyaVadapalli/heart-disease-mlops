@@ -1,5 +1,12 @@
 # Pipeline Walkthrough Video -- Narration Script
 
+> **A narrated walkthrough video already exists** at
+> `screenshots/pipeline_walkthrough.mp4` (~4 minutes, auto-generated
+> with offline text-to-speech and the project's real EDA/results/
+> architecture figures as slides). Use it as-is, or use this script
+> below if you'd rather record your own live screen-capture walkthrough
+> of an actual running Docker/Kubernetes session instead.
+
 Target length: ~6-8 minutes. Record your screen (OBS, Windows Game Bar
 `Win+G`, or Zoom's local recording) while reading/paraphrasing this.
 Each section lists what to have on screen and what to say. Cut anything

@@ -228,5 +228,10 @@ checklist).
 
 ## 13. Demo video
 
-A narration script for the short pipeline walkthrough video is in
+[`screenshots/pipeline_walkthrough.mp4`](screenshots/pipeline_walkthrough.mp4)
+is a ~4-minute narrated walkthrough of the full pipeline (data, EDA,
+training, MLflow, testing, CI/CD, Docker, Kubernetes, monitoring),
+generated with offline text-to-speech over slides built from the
+project's real figures and metrics. A narration script for recording
+your own live screen-capture version instead is in
 [`VIDEO_SCRIPT.md`](VIDEO_SCRIPT.md).
