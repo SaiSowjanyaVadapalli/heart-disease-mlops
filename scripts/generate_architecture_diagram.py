@@ -1,4 +1,5 @@
 """Generates reports/figures/architecture_diagram.png for the written report."""
+
 from pathlib import Path
 
 import matplotlib
@@ -13,17 +14,36 @@ OUT_PATH = ROOT / "reports" / "figures" / "architecture_diagram.png"
 
 def box(ax, xy, w, h, text, color="#2a6f97"):
     rect = mpatches.FancyBboxPatch(
-        xy, w, h, boxstyle="round,pad=0.02,rounding_size=0.08",
-        linewidth=1.5, edgecolor=color, facecolor=color, alpha=0.15,
+        xy,
+        w,
+        h,
+        boxstyle="round,pad=0.02,rounding_size=0.08",
+        linewidth=1.5,
+        edgecolor=color,
+        facecolor=color,
+        alpha=0.15,
     )
     ax.add_patch(rect)
-    ax.text(xy[0] + w / 2, xy[1] + h / 2, text, ha="center", va="center",
-             fontsize=9, color="#0b2545", wrap=True, fontweight="bold")
+    ax.text(
+        xy[0] + w / 2,
+        xy[1] + h / 2,
+        text,
+        ha="center",
+        va="center",
+        fontsize=9,
+        color="#0b2545",
+        wrap=True,
+        fontweight="bold",
+    )
 
 
 def arrow(ax, start, end):
-    ax.annotate("", xy=end, xytext=start,
-                arrowprops=dict(arrowstyle="-|>", color="#555555", lw=1.5))
+    ax.annotate(
+        "",
+        xy=end,
+        xytext=start,
+        arrowprops=dict(arrowstyle="-|>", color="#555555", lw=1.5),
+    )
 
 
 def main():
@@ -46,16 +66,34 @@ def main():
     arrow(ax, (10.3, 5.8), (10.7, 5.8))
 
     # Row 2: CI/CD
-    box(ax, (0.3, 3.6), 2.6, 1.0, "GitHub Actions:\nLint -> Unit Tests", color="#6a994e")
-    box(ax, (3.2, 3.6), 2.6, 1.0, "GitHub Actions:\nModel Training Job", color="#6a994e")
-    box(ax, (6.1, 3.6), 2.6, 1.0, "GitHub Actions:\nDocker Build +\nContainer Smoke Test", color="#6a994e")
+    box(
+        ax, (0.3, 3.6), 2.6, 1.0, "GitHub Actions:\nLint -> Unit Tests", color="#6a994e"
+    )
+    box(
+        ax, (3.2, 3.6), 2.6, 1.0, "GitHub Actions:\nModel Training Job", color="#6a994e"
+    )
+    box(
+        ax,
+        (6.1, 3.6),
+        2.6,
+        1.0,
+        "GitHub Actions:\nDocker Build +\nContainer Smoke Test",
+        color="#6a994e",
+    )
     arrow(ax, (2.9, 4.1), (3.2, 4.1))
     arrow(ax, (5.8, 4.1), (6.1, 4.1))
     arrow(ax, (11.7, 5.3), (7.4, 4.6))  # model artifact feeds docker build
 
     # Row 3: deployment
     box(ax, (0.3, 1.6), 2.4, 1.0, "Docker Image\nheart-disease-api", color="#bc4749")
-    box(ax, (3.0, 1.6), 2.6, 1.0, "Kubernetes Deployment\n(2 replicas, probes)", color="#bc4749")
+    box(
+        ax,
+        (3.0, 1.6),
+        2.6,
+        1.0,
+        "Kubernetes Deployment\n(2 replicas, probes)",
+        color="#bc4749",
+    )
     box(ax, (5.9, 1.6), 2.4, 1.0, "Kubernetes Service\n(LoadBalancer)", color="#bc4749")
     box(ax, (8.6, 1.6), 1.9, 1.0, "Client /\nPostman / curl", color="#bc4749")
     arrow(ax, (2.7, 2.1), (3.0, 2.1))
@@ -71,7 +109,9 @@ def main():
 
     ax.set_title(
         "Heart Disease Risk API -- End-to-End MLOps Architecture",
-        fontsize=13, fontweight="bold", pad=15,
+        fontsize=13,
+        fontweight="bold",
+        pad=15,
     )
     fig.tight_layout()
     fig.savefig(OUT_PATH, dpi=160)
