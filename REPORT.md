@@ -3,7 +3,7 @@
 **AIMLCZG523 -- MLOps, Assignment 1**
 **Author:** Sowjanya
 **Dataset:** Heart Disease UCI Dataset (Cleveland subset), UCI Machine Learning Repository
-**Repository:** _<insert your GitHub repo URL here after pushing>_
+**Repository:** https://github.com/SaiSowjanyaVadapalli/heart-disease-mlops
 
 ---
 
@@ -346,4 +346,4 @@ dashboard.
 
 ## 14. Repository Link
 
-_<insert your GitHub repository URL here>_
+https://github.com/SaiSowjanyaVadapalli/heart-disease-mlops

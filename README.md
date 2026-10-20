@@ -205,7 +205,7 @@ and the screenshots to capture for the report. Manifests:
 ## 11. Reproducing everything from a clean checkout
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/SaiSowjanyaVadapalli/heart-disease-mlops.git
 cd heart-disease-mlops
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
